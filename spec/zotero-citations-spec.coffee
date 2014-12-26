@@ -1,5 +1,5 @@
 {WorkspaceView} = require 'atom'
-AsciiArt = require '../lib/ascii-art'
+AsciiArt = require '../lib/zotero-citations'
 
 # Use the command `window:run-package-specs` (cmd-alt-ctrl-p) to run specs.
 #
@@ -11,11 +11,11 @@ describe "AsciiArt", ->
   beforeEach ->
     atom.workspaceView = new WorkspaceView()
     atom.workspace = atom.workspaceView.model
-    promise = atom.packages.activatePackage('ascii-art')
+    promise = atom.packages.activatePackage('zotero-citations')
     waitsForPromise ->
       atom.workspace.open()
 
-  it "converts", ->
-    atom.workspaceView.trigger 'ascii-art:convert'
+  it "scans", ->
+    atom.workspaceView.trigger 'zotero-citations:scan'
     waitsForPromise ->
       promise
