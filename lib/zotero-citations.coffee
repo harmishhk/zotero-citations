@@ -1,6 +1,5 @@
-module.exports =
+module.exports = new class
   activate: ->
-    @citation ?= @_citation.bind(this)
     atom.workspaceView.command "zotero-citations:scan", => @scan()
 
   cite: (key) ->
@@ -9,7 +8,7 @@ module.exports =
   bibliography: ->
     return Object.keys(@citations).join("\n")
 
-  _citation: (matched, label, keys) ->
+  citation: (matched, label, keys) =>
     console.log("Found link: #{matched} with label #{label} and keys #{keys}")
     _keys = keys.split(/\s*,\s*/)
     console.log("keys = " + JSON.stringify(_keys))
