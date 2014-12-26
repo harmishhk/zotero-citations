@@ -1,5 +1,6 @@
 module.exports =
   activate: ->
+    @citation ?= @_citation.bind(this)
     atom.workspaceView.command "zotero-citations:scan", => @scan()
 
   cite: (key) ->
@@ -8,15 +9,17 @@ module.exports =
   bibliography: ->
     return Object.keys(@citations).join("\n")
 
-  citation: (matched, label, keys) ->
-    console.log("Found link: #{matched}")
+  _citation: (matched, label, keys) ->
+    console.log("Found link: #{matched} with label #{label} and keys #{keys}")
     _keys = keys.split(/\s*,\s*/)
-    return matched if _keys.length == 0
+    console.log("keys = " + JSON.stringify(_keys))
     for key in _keys
       return matched unless key[0] == '@'
     found = 0
     for key in _keys
       key = key.substring(1)
+      console.log("key = " + JSON.stringify(key))
+      console.log("citation = " + JSON.stringify(@citations))
       @citations[key] ?= @cite(key)
       found += 1 if @citations[key] != ''
     if found == 0
@@ -33,7 +36,8 @@ module.exports =
     @citations = Object.create(null)
     bibliography = null
     for line, lineno in editor.getBuffer().getLines()
-      cited = line.replace(/\[([^\]]*])\]\(([^\)]*])\)/g, @citation)
+      console.log(line)
+      cited = line.replace(/\[([^\]]+)\]\(([^)]+)\)/g, @citation)
       if line != cited
         editor.setTextInBufferRange([[lineno, 0], [lineno, line.length]], cited)
         continue
