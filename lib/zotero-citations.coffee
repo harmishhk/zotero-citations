@@ -48,7 +48,7 @@ module.exports = new class
 
     _label = (@cite(key.substring(1)) for key in _keys).join(';')
     _label = label.replace(/\?\?$/, '') + '??' if _label.match(/^[?;]*$/)
-    return "[#{_label}](#{keys})"
+    return "[#{_label}][#{keys}]"
 
   scan: ->
     console.log("Scanning...")
@@ -59,23 +59,23 @@ module.exports = new class
     bibliography = null
     for line, lineno in editor.getBuffer().getLines()
       console.log(line)
-      cited = line.replace(/\[([^\]]*)\]\(([^)]+)\)/g, @citation)
+      cited = line.replace(/\[([^\]]*)\]\[([^\]]+)\]/g, @citation)
       if line != cited
         editor.setTextInBufferRange([[lineno, 0], [lineno, line.length]], cited)
         continue
 
-      if line.match(/^\s*<bibliography>\s*$/)
+      if line.match(/^\[#bibliography\]: #start\s*$/)
         bibliography = [[lineno, 0]]
         continue
 
-      if bibliography && line.match(/^\s*<\/bibliography>\s*$/)
+      if line.match(/^\[#bibliography\]: #end\s*$/)
         bibliography.push([lineno, line.length])
         continue
 
-      if line.match(/^\s*<bibliography\/>\s*$/)
+      if line.match(/^\[#bibliography\]: #\s*$/)
         bibliography = [[lineno, 0], [lineno, line.length]]
         continue
 
     if bibliography?.length == 2
       bib = @bibliography()
-      editor.setTextInBufferRange(bibliography, bib) if bib
+      editor.setTextInBufferRange(bibliography, "[#bibliography]: #start\n#{bib.replace(/\n$/, '')}\n[#bibliography]: #end\n") if bib

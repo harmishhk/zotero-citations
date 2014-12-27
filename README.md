@@ -1,13 +1,17 @@
-zotero-citations
+Zotero Markdown citations
 =========
 
-Scans selected text to ascii art banner
+This package adds Zotero support to Atom Markdown editing. To use it, you will need to have the [Better BibTeX](http://zotplus.github.io/better-bibtex/index.html) plugin installed in Zotero, and to have enabled 'Enable export by HTTP'.
 
-This is the source code for the [create your own package](https://atom.io/docs/latest/your-first-package) tutorial.
+After that, you can add citations to your document by including them as reference-style links to your bibtex citation key, e.g.
+**\[\(Heyns, 2014\)\]\[@heyns2014\]**. You can put whatever you want in the first set of brackets (including nothing) and the package will fill out the citation when you execute 'Zotero Citations: Scan'
 
-This is the source code for the [\(Heyns, 2014\)](@heyns2014) tutorial.
+To generate a bibliography, add the following where you want it to appear on a line of its own:
 
-<bibliography>
-[@heyns2014]: #heyns2014 "Heyns, E\. \(2014\)\. Digg \- What the Internet is talking about right now\. Retrieved December 20, 2014, from http://digg\.com/"
-<a name="heyns2014">Heyns, E\. \(2014\)\. Digg \- What the Internet is talking about right now\. Retrieved December 20, 2014, from http://digg\.com/</a>
-</bibliography>
+**\[#bibliography\]: #**
+
+The package will expand this to a full bibliography including the required fencing so it can be done again.
+
+## Caveat
+
+This is still very early work, put together over two days during christmas, you can expect there to be bugs. The real gruntwork of the citations is done by BBT, which is by now extensively tested, and this package is really not much code, but still: *it edits your text*. Undo ought to work, but still. Please report any issues at https://github.com/ZotPlus/zotero-citations
