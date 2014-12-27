@@ -7,7 +7,7 @@ module.exports = new class
     client = new XMLHttpRequest()
     req = {
       method: 'bibliography'
-      params: [Object.keys(@citations)]
+      params: [@style, Object.keys(@citations)]
     }
     req = JSON.stringify(req)
     client.open('POST', 'http://localhost:23119/better-bibtex/schomd', false)
@@ -25,7 +25,7 @@ module.exports = new class
       client = new XMLHttpRequest()
       req = {
         method: 'citation'
-        params: [key]
+        params: [@style, key]
       }
       req = JSON.stringify(req)
       client.open('POST', 'http://localhost:23119/better-bibtex/schomd', false)
@@ -50,11 +50,14 @@ module.exports = new class
     _label = label.replace(/\?\?$/, '') + '??' if _label.match(/^[?;]*$/)
     return "[#{_label}][#{keys}]"
 
+  styleRE: /^\[#citation-style\]: #([^\s]+)$/
+
   scan: ->
     console.log("Scanning...")
     editor = atom.workspace.getActivePaneItem()
     return unless editor
 
+    @style = 'apa'
     @citations = Object.create(null)
     bibliography = null
     for line, lineno in editor.getBuffer().getLines()
@@ -63,6 +66,9 @@ module.exports = new class
       if line != cited
         editor.setTextInBufferRange([[lineno, 0], [lineno, line.length]], cited)
         continue
+
+      if style = @styleRE.exec(line)
+        @style = style[1]
 
       if line.match(/^\[#bibliography\]: #start\s*$/)
         bibliography = [[lineno, 0]]
