@@ -3,7 +3,7 @@
   "main": "./lib/zotero-citations",
   "version": "0.0.0",
   "private": true,
-  "description": "A short description of your package",
+  "description": "Zotero citations for Markdown",
   "activationEvents": ["zotero-citations:scan"],
   "repository": "https://github.com/ZotPlus/zotero-citations",
   "license": "MIT",
