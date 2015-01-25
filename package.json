@@ -1,10 +1,12 @@
 {
   "name": "zotero-citations",
   "main": "./lib/zotero-citations",
-  "version": "0.0.0",
+  "version": "0.1.1",
   "private": true,
-  "description": "A short description of your package",
-  "activationEvents": ["zotero-citations:scan"],
+  "description": "Zotero citations for Markdown",
+  "activationEvents": [
+    "zotero-citations:scan"
+  ],
   "repository": "https://github.com/ZotPlus/zotero-citations",
   "license": "MIT",
   "engines": {

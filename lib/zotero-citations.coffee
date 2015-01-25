@@ -1,50 +1,87 @@
-module.exports =
+module.exports = new class
   activate: ->
     atom.workspaceView.command "zotero-citations:scan", => @scan()
 
-  cite: (key) ->
-    return ''
-
   bibliography: ->
-    return Object.keys(@citations).join("\n")
+    console.log("Generating bibliography for #{JSON.stringify(Object.keys(@citations))}")
+    client = new XMLHttpRequest()
+    req = {
+      method: 'bibliography'
+      params: [@style, Object.keys(@citations)]
+    }
+    req = JSON.stringify(req)
+    client.open('POST', 'http://localhost:23119/better-bibtex/schomd', false)
+    client.send(req)
 
-  citation: (matched, label, keys) ->
-    console.log("Found link: #{matched}")
+    res = JSON.parse(client.responseText)
+    if res.error
+      console.log(res.error)
+      return null
+    else
+      return res.result
+
+  cite: (key) ->
+    if !@citations[key]?
+      client = new XMLHttpRequest()
+      req = {
+        method: 'citation'
+        params: [@style, key]
+      }
+      req = JSON.stringify(req)
+      client.open('POST', 'http://localhost:23119/better-bibtex/schomd', false)
+      client.send(req)
+
+      res = JSON.parse(client.responseText)
+      if res.error
+        console.log(res.error)
+        @citations[key] = '??'
+      else
+        @citations[key] = res.result[0]
+
+    return @citations[key]
+
+  citation: (matched, label, keys) =>
+    console.log("Found link: #{matched} with label #{label} and keys #{keys}")
     _keys = keys.split(/\s*,\s*/)
-    return matched if _keys.length == 0
     for key in _keys
       return matched unless key[0] == '@'
-    found = 0
-    for key in _keys
-      key = key.substring(1)
-      @citations[key] ?= @cite(key)
-      found += 1 if @citations[key] != ''
-    if found == 0
-      label = label.replace(/\?\?$/, '') + '??'
-    else
-      label = ((if @citations[key] == '' then '??' else @citations[key]) for key in _keys).join(';')
-    return "[#{label}](#{keys})"
+
+    _label = (@cite(key.substring(1)) for key in _keys).join(';')
+    _label = label.replace(/\?\?$/, '') + '??' if _label.match(/^[?;]*$/)
+    return "[#{_label}][#{keys}]"
+
+  styleRE: /^\[#citation-style\]: #([^\s]+)$/
 
   scan: ->
     console.log("Scanning...")
     editor = atom.workspace.getActivePaneItem()
     return unless editor
 
+    @style = 'apa'
     @citations = Object.create(null)
     bibliography = null
     for line, lineno in editor.getBuffer().getLines()
-      cited = line.replace(/\[([^\]]*])\]\(([^\)]*])\)/g, @citation)
+      console.log(line)
+      cited = line.replace(/\[([^\]]*)\]\[([^\]]+)\]/g, @citation)
       if line != cited
         editor.setTextInBufferRange([[lineno, 0], [lineno, line.length]], cited)
         continue
 
-      if line.match(/^\s*<bibliography>\s*$/)
+      if style = @styleRE.exec(line)
+        @style = style[1]
+
+      if line.match(/^\[#bibliography\]: #start\s*$/)
         bibliography = [[lineno, 0]]
         continue
 
-      if bibliography && line.match(/^\s*<\/bibliography>\s*$/)
+      if line.match(/^\[#bibliography\]: #end\s*$/)
         bibliography.push([lineno, line.length])
         continue
 
+      if line.match(/^\[#bibliography\]: #\s*$/)
+        bibliography = [[lineno, 0], [lineno, line.length]]
+        continue
+
     if bibliography?.length == 2
-      editor.setTextInBufferRange(bibliography, @bibliography())
+      bib = @bibliography()
+      editor.setTextInBufferRange(bibliography, "[#bibliography]: #start\n#{bib.replace(/\n$/, '')}\n[#bibliography]: #end\n") if bib
