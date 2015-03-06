@@ -7,7 +7,7 @@ module.exports = new class
     client = new XMLHttpRequest()
     req = {
       method: 'bibliography'
-      params: [@style, Object.keys(@citations)]
+      params: [Object.keys(@citations), {style: @style}]
     }
     req = JSON.stringify(req)
     client.open('POST', 'http://localhost:23119/better-bibtex/schomd', false)
