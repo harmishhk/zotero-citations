@@ -1,7 +1,7 @@
 {
   "name": "zotero-citations",
   "main": "./lib/zotero-citations",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "private": true,
   "description": "Zotero citations for Markdown",
   "activationEvents": [
