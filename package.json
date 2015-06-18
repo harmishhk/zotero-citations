@@ -4,7 +4,7 @@
   "version": "0.2.0",
   "private": true,
   "description": "Zotero citations for Markdown",
-  "activationEvents": [
+  "activationCommands": [
     "zotero-citations:scan"
   ],
   "repository": "https://github.com/ZotPlus/zotero-citations",
