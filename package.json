@@ -4,9 +4,9 @@
   "version": "0.2.0",
   "private": true,
   "description": "Zotero citations for Markdown",
-  "activationCommands": [
-    "zotero-citations:scan"
-  ],
+  "activationCommands": {
+    "atom-workspace": [ "zotero-citations:scan" ]
+  },
   "repository": "https://github.com/ZotPlus/zotero-citations",
   "license": "MIT",
   "engines": {

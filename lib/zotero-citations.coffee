@@ -1,6 +1,14 @@
-module.exports = new class
-  activate: ->
-    atom.workspaceView.command "zotero-citations:scan", => @scan()
+{CompositeDisposable} = require 'atom'
+
+module.exports = ZoteroScan =
+  subscriptions: null
+
+  activate: (state) ->
+    @subscriptions = new CompositeDisposable
+    @subscriptions.add atom.commands.add 'atom-workspace', 'zotero-citations:scan': => @scan()
+
+  deactivate:
+    @subscriptions.dispose() if @subscriptions
 
   bibliography: ->
     console.log("Generating bibliography for #{JSON.stringify(Object.keys(@citations))}")
@@ -21,6 +29,7 @@ module.exports = new class
       return res.result
 
   cite: (key) ->
+    console.log("label lookup for #{key}")
     if !@citations[key]?
       client = new XMLHttpRequest()
       req = {
@@ -46,7 +55,7 @@ module.exports = new class
     for key in _keys
       return matched unless key[0] == '@'
 
-    _label = (@cite(key.substring(1)) for key in _keys).join(';')
+    _label = (ZoteroScan.cite(key.substring(1)) for key in _keys).join(';')
     _label = label.replace(/\?\?$/, '') + '??' if _label.match(/^[?;]*$/)
     return "[#{_label}][#{keys}]"
 
