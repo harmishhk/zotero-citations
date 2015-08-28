@@ -6,7 +6,8 @@
   "description": "Zotero citations for Markdown",
   "activationCommands": {
     "atom-workspace": [
-      "zotero-citations:scan"
+      "zotero-citations:scan",
+      "zotero-citations:pick"
     ]
   },
   "repository": "https://github.com/ZotPlus/zotero-citations",
