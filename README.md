@@ -4,7 +4,12 @@ Zotero Markdown citations
 This package adds Zotero support to Atom Markdown editing. To use it, you will need to have the [Better BibTeX](http://zotplus.github.io/better-bibtex/index.html) plugin installed in Zotero, and to have enabled 'Enable export by HTTP'.
 
 After that, you can add citations to your document by including them as reference-style links to your bibtex citation key, e.g.
-**\[\(Heyns, 2014\)\]\[@heyns2014\]**. You can put whatever you want in the first set of brackets (including nothing) and the package will fill out the citation when you execute 'Zotero Citations: Scan'
+**\[\(Heyns, 2014\)\]\[@heyns2014\]**. You can put whatever you want in the first set of brackets (including nothing)
+and the package will fill out the citation when you execute 'Zotero Citations: Scan'. If you don't feel like typing
+these out (and let's be honest, you don't), executing 'Zotero Citations: Pick' will call up a graphical picker which
+will insert these for you, formatted and all.
+
+**IMPORTANT**: Zotero, with Better BibTeX installed, must be running while you use these.
 
 To generate a bibliography, add the following where you want it to appear on a line of its own:
 
