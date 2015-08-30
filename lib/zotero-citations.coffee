@@ -158,4 +158,6 @@ module.exports = ZoteroScan =
         bib = bib.replace(/\[([^\]]*)\][^]*?a>/g, (match, key) => (match + @citations[key.substring(1)] + ' '))
       # remove doi links
       bib = bib.replace(/\shttp[^]*?(\s|\n|\")/g, (match, ending) => ending)
+      # make bibliography text small
+      bib = bib.replace(/a>([^]*?)\n/g, (match, text) => ('a> <small>' + text + '<\/small>\n'))
       editor.setTextInBufferRange(bibliography, "[#bibliography]: #start\n\n#{bib}[#bibliography]: #end") if bib
