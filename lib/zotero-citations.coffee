@@ -40,8 +40,10 @@ module.exports = ZoteroScan =
       res = JSON.parse(client.responseText)
       if res.error
         console.log(res.error)
+      else if not (res.result[0]?)
+        console.log('got empty bib entry')
       else
-        bib += res.result
+        bib += res.result + '\n'
 
     return bib
 
@@ -154,4 +156,6 @@ module.exports = ZoteroScan =
       # number the citations when style is ieee
       if @style == 'ieee'
         bib = bib.replace(/\[([^\]]*)\][^]*?a>/g, (match, key) => (match + @citations[key.substring(1)] + ' '))
-      editor.setTextInBufferRange(bibliography, "[#bibliography]: #start\n#{bib.replace(/\n$/, '')}\n[#bibliography]: #end\n") if bib
+      # remove doi links
+      bib = bib.replace(/\shttp[^]*?(\s|\n|\")/g, (match, ending) => ending)
+      editor.setTextInBufferRange(bibliography, "[#bibliography]: #start\n\n#{bib}[#bibliography]: #end") if bib
