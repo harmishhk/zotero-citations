@@ -13,6 +13,7 @@ module.exports = ZoteroScan =
 
   pick: ->
     req = new XMLHttpRequest()
+    #req.open('GET', 'http://localhost:23119/better-bibtex/cayw?format=atom-zotero-citations&minimize=true', false)
     req.open('GET', 'http://localhost:23119/better-bibtex/cayw?format=atom-zotero-citations', false)
     req.send(null)
 
