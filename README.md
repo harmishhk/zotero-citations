@@ -25,7 +25,7 @@ The default citation style is APA; if you want another style, include
 
 **\[#citation-style\]: #cell**
 
-(in case you want Cell) on a line of its own, *before* any citations (as the style goes into effect after this). And make sure you have the style installed in Zotero. You can get the style identifier (and style) from the [Zotero Style Repository](https://www.zotero.org/styles); the style identifier is the last par of the url of the style.
+(in case you want Cell) on a line of its own, *before* any citations (as the style goes into effect after this). And make sure you have the style installed in Zotero. You can get the style identifier (and style) from the [Zotero Style Repository](https://www.zotero.org/styles); the style identifier is the last part of the url of the style.
 
 ## Caveat
 
