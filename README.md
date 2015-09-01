@@ -5,7 +5,11 @@ This package adds Zotero support to Atom Markdown editing. To use it, you will n
 
 After that, you can add citations to your document by including them as reference-style links to your bibtex citation key, e.g.
 **\[\(Heyns, 2014\)\]\[@heyns2014\]**. You can put whatever you want in the first set of brackets (including nothing)
-and the package will fill out the citation when you execute 'Zotero Citations: Scan'. If you don't feel like typing
+and the package will fill out the citation when you execute 'Zotero Citations: Scan'.
+
+## Visual picking of citations
+
+If you don't feel like typing
 these out (and let's be honest, you don't), executing 'Zotero Citations: Pick' will call up a graphical picker which
 will insert these for you, formatted and all.
 
