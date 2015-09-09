@@ -112,7 +112,7 @@ module.exports = ZoteroScan =
     bibliography = null
     citekeys = []
     citedlines = []
-    matchregex = /\[([^\]]*)\]\[([^\]]+)\]/g
+    matchregex = /\[([^]*?)\]\[([^\]]+)\]/g
     for line, lineno in editor.getBuffer().getLines()
       console.log(line)
 
@@ -145,7 +145,7 @@ module.exports = ZoteroScan =
     # replace citation text at second run
     for lineno in citedlines
       line = editor.getBuffer().getLines()[lineno]
-      cited = line.replace(/\[([^\]]*)\]\[([^\]]+)\]/g, @citation)
+      cited = line.replace(matchregex, @citation)
       if line != cited
         editor.setTextInBufferRange([[lineno, 0], [lineno, line.length]], cited)
 
