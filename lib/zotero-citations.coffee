@@ -1,12 +1,12 @@
-{CompositeDisposable} = require 'atom'
+{CompositeDisposable} = require('atom')
 
 module.exports = ZoteroScan =
   subscriptions: null
 
   activate: (state) ->
-    @subscriptions = new CompositeDisposable
-    @subscriptions.add atom.commands.add 'atom-workspace', 'zotero-citations:scan': => @scan()
-    @subscriptions.add atom.commands.add 'atom-workspace', 'zotero-citations:pick': => @pick()
+    @subscriptions = new CompositeDisposable()
+    @subscriptions.add(atom.commands.add('atom-workspace', 'zotero-citations:scan': => @scan()))
+    @subscriptions.add(atom.commands.add('atom-workspace', 'zotero-citations:pick': => @pick()))
 
   deactivate:
     @subscriptions.dispose() if @subscriptions
@@ -90,7 +90,7 @@ module.exports = ZoteroScan =
       for key, index in validkeys
         @citations[key] = res.result[index]
 
-  citation: (matched, label, keys) =>
+  citation: (matched, label, keys) ->
     console.log("Found link: #{matched} with label #{label} and keys #{keys}")
     _keys = keys.split(/\s*,\s*/)
     for key in _keys

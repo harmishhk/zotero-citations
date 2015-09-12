@@ -14,5 +14,10 @@
   "license": "MIT",
   "engines": {
     "atom": ">0.39.0"
+  },
+  "dependencies": {
+    "collapse-white-space": "^1.0.0",
+    "mdast": "^1.2.0",
+    "sync-request": "^2.0.1"
   }
 }
