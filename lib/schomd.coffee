@@ -1,6 +1,5 @@
 class Walker
   constructor: (@processor, @ast) ->
-    @style = 'apa'
     @citations = {}
     @cited = {}
     @request = require('sync-request')
@@ -8,7 +7,22 @@ class Walker
     @inBibliography = false
     @caseInsensitive = false
 
+    @findStyle(@ast)
+    @style ?= 'apa'
+
     @walk(@ast)
+
+  findStyle: (node) ->
+    return unless node
+
+    if node.type == 'definition' && node.identifier == '#citation-style'
+      style = node.link.replace(/^#/, '')
+      if @style && style != @style
+        throw new Error("Changing style is not supported (was: #{@style}, new: #{style})")
+      @style = style
+
+    for child in node.children || []
+      @findStyle(child)
 
   walk: (ast) ->
     return unless ast.children
@@ -95,10 +109,6 @@ class Walker
     return ast
 
   _definition: (ast) ->
-    if ast.identifier == '#citation-style'
-      @style = ast.link.replace(/^#/, '')
-      return ast
-
     if ast.identifier == '#bibliography' && ast.link in ['#', '#end']
       bib = @bibliography()
 
