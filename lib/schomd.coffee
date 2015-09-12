@@ -2,7 +2,11 @@ class Walker
   constructor: (@processor, @ast) ->
     @style = 'apa'
     @citations = {}
+    @cited = {}
     @request = require('sync-request')
+
+    @inBibliography = false
+    @caseInsensitive = false
 
     @walk(@ast)
 
@@ -10,12 +14,42 @@ class Walker
     return unless ast.children
 
     filtered = []
-    for node in ast.children
+    for node, i in ast.children
+      @inBibliography = false if node.type == 'definition' && node.identifier == '#bibliography' && node.link in ['#', '#end']
+
+      continue if @inBibliography
+
       node = @["_#{node.type}"].call(@, node) if @["_#{node.type}"]
       continue unless node
-      @walk(node)
-      filtered.push(node)
+      if Array.isArray(node)
+        filtered = filtered.concat(node)
+      else
+        @walk(node)
+        filtered.push(node)
+
+      @inBibliography = true if node.type == 'definition' && node.identifier == '#bibliography' && node.link == '#start'
     ast.children = filtered
+
+  bibliography: ->
+    keys = Object.keys(@cited)
+    return '' if keys.length == 0
+
+    try
+      res = @request('POST', 'http://localhost:23119/better-bibtex/schomd', {json: method: 'bibliography', params: [keys, {caseInsensitive: @caseInsensitive, style: @style}]})
+      res = JSON.parse(res.getBody('utf8'))
+    catch err
+      res = {error: err.message}
+      
+    switch
+      when res.error
+        console.log("failed to fetch bibliography: %j", res.error)
+        return ''
+
+      when ! (res.result?)
+        console.log("no response for bibliography")
+        return ''
+
+    return res.result
 
   citation: (id, caseInsensitive) ->
     return unless id
@@ -34,16 +68,18 @@ class Walker
 
       switch
         when res.error
-          console.log("failed to fetch #{id}: #{res.error}")
+          console.log("failed to fetch #{id}: %j", res.error)
           @citations[id] = '??'
 
-        when ! (res.result[0]?)
+        when ! (res.result?)
           console.log("no response for #{id}")
           @citations[id] = '??'
 
         else
-          @citations[id] = res.result
+          @citations[id] = res.result || '??'
 
+    for key in keys
+      @cited[key] = true
     return @citations[id]
 
   _link: (ast) ->
@@ -53,7 +89,25 @@ class Walker
 
   _linkReference: (ast) ->
     citation = @citation(ast.identifier, true)
-    ast.children = @processor.parse(citation).children if citation
+    if citation
+      ast.children = @processor.parse(citation).children
+      @caseInsensitive = true
+    return ast
+
+  _definition: (ast) ->
+    if ast.identifier == '#citation-style'
+      @style = ast.link.replace(/^#/, '')
+      return ast
+
+    if ast.identifier == '#bibliography' && ast.link in ['#', '#end']
+      bib = @bibliography()
+
+      if ast.link == '#'
+        bib = "[#bibliography]: #start\n" + bib
+        ast.link = '#end'
+
+      ast = @processor.parse(bib).children.concat(ast)
+
     return ast
 
 module.exports = (processor) ->
