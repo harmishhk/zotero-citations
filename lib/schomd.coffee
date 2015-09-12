@@ -39,7 +39,7 @@ class Walker
       res = JSON.parse(res.getBody('utf8'))
     catch err
       res = {error: err.message}
-      
+
     switch
       when res.error
         console.log("failed to fetch bibliography: %j", res.error)
