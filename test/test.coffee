@@ -5,7 +5,7 @@ mdast = require('mdast')
 schomd = require('../lib/schomd')
 
 markdown = fs.readFileSync('test/test.md', 'utf-8')
-console.log(mdast.use(schomd).process(markdown))
-
-#ast = mdast.parse('[](@Tay)')
-#console.log(JSON.stringify(ast, null, 2))
+#processor = mdast.use(schomd)
+processor = mdast
+fs.writeFileSync('test/test.json', JSON.stringify(processor.parse(markdown), null, 2))
+fs.writeFileSync('test/test.remd', processor.process(markdown))
