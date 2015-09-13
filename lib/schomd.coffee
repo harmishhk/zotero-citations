@@ -2,7 +2,8 @@ class Walker
   constructor: (@processor, @ast) ->
     @citations = {}
     @cited = {}
-    @request = require('sync-request')
+
+    @XMLHttpRequest = (typeof XMLHttpRequest != 'undefined')
 
     @inBibliography = false
     @caseInsensitive = false
@@ -11,6 +12,30 @@ class Walker
     @style ?= 'apa'
 
     @walk(@ast)
+
+  remote: (method, params) ->
+    if @XMLHttpRequest
+      console.log('XMLHttpRequest')
+      client = new XMLHttpRequest()
+      req = JSON.stringify({method, params})
+      client.open('POST', 'http://localhost:23119/better-bibtex/schomd', false)
+      client.send(req)
+
+      try
+        res = JSON.parse(client.responseText)
+      catch err
+        res = {error: err.message}
+
+    else
+      @request ?= require('sync-request')
+      try
+        res = @request('POST', 'http://localhost:23119/better-bibtex/schomd', {json: {method, params}})
+        res = JSON.parse(res.getBody('utf8'))
+      catch err
+        res = {error: err.message}
+
+    throw new Error(res.error) if res.error
+    return res.result
 
   findStyle: (node) ->
     return unless node
@@ -49,21 +74,16 @@ class Walker
     return '' if keys.length == 0
 
     try
-      res = @request('POST', 'http://localhost:23119/better-bibtex/schomd', {json: method: 'bibliography', params: [keys, {caseInsensitive: @caseInsensitive, style: @style}]})
-      res = JSON.parse(res.getBody('utf8'))
+      bib = @remote('bibliography', [keys, {caseInsensitive: @caseInsensitive, style: @style}])
     catch err
-      res = {error: err.message}
+      console.log("failed to fetch bibliography: %j", err.message)
+      return ''
 
-    switch
-      when res.error
-        console.log("failed to fetch bibliography: %j", res.error)
-        return ''
+    if !bib
+      console.log("no response for bibliography")
+      return ''
 
-      when ! (res.result?)
-        console.log("no response for bibliography")
-        return ''
-
-    return res.result
+    return bib
 
   citation: (id, caseInsensitive) ->
     return unless id
@@ -75,22 +95,16 @@ class Walker
 
     if !@citations[id]
       try
-        res = @request('POST', 'http://localhost:23119/better-bibtex/schomd', {json: method: 'citation', params: [keys, {caseInsensitive, style: @style}]})
-        res = JSON.parse(res.getBody('utf8'))
+        res = @remote('citation', [keys, {caseInsensitive, style: @style}])
       catch err
-        res = {error: err.message}
+        console.log("failed to fetch #{id}: %j", err.message)
+        res = null
 
-      switch
-        when res.error
-          console.log("failed to fetch #{id}: %j", res.error)
-          @citations[id] = '??'
-
-        when ! (res.result?)
-          console.log("no response for #{id}")
-          @citations[id] = '??'
-
-        else
-          @citations[id] = res.result || '??'
+      if res
+        @citations[id] = res
+      else
+        console.log("no response for #{id}")
+        @citations[id] = '??'
 
     for key in keys
       @cited[key] = true
